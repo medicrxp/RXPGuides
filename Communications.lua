@@ -566,3 +566,39 @@ function addon.comms.OpenBrandedExport(title, description, content, width,
     f:DoLayout()
     f:Show()
 end
+
+local function buildGroupLine() end
+
+function addon.comms:ShowGroupingHistory()
+    local f = self.groupingHistory
+    if not f then
+        f = AceGUI:Create("Frame") -- TODO use AceGUI:Create("Window")
+        self.groupingHistory = f
+        f:Hide()
+
+        f:SetLayout("Fill")
+        f:EnableResize(true)
+        f.statustext:GetParent():Hide()
+        f:SetTitle("RestedXP: " .. L("Group History")) -- TODO locale
+
+        f.scrollContainer = AceGUI:Create("ScrollFrame")
+        f.scrollContainer:SetLayout("Fill")
+        f.scrollContainer:SetFullHeight(true)
+        f:AddChild(f.scrollContainer)
+
+        f.frame:SetBackdrop(addon.RXPFrame.backdropEdge)
+        f.frame:SetBackdropColor(unpack(addon.colors.background))
+    end
+
+    for _, data in pairs(self.players) do end
+
+    _G["RESTEDXP_GROUP_HISTORY"] = f.frame
+    tinsert(_G.UISpecialFrames, "RESTEDXP_GROUP_HISTORY")
+
+    f:SetCallback("OnClose", function() f:Release() end)
+
+    f:DoLayout()
+    f:Show()
+end
+
+_G.RXPD = function() addon.comms:ShowGroupingHistory() end
