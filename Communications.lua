@@ -573,9 +573,10 @@ function addon.comms.OpenBrandedExport(title, description, content, width,
     f:Show()
 end
 
-local function buildGroupLine(data)
+local function buildGroupLine(name, data)
+    print("buildGroupLine: " .. name)
     local l = AceGUI:Create("SimpleGroup")
-    l:SetLayout("List")
+    l:SetLayout("Flow")
     l:SetFullWidth(true)
     -- Status, name, class, time, XP, last seen
 
@@ -588,51 +589,66 @@ local function buildGroupLine(data)
         ["isRxp"] = true,
     ]]
 
-    l.pName = AceGUI:Create("Label")
-    l.pName:SetText(data)
-    l.pName:SetFullWidth(true)
+    local pName = AceGUI:Create("Label")
+    pName:SetFont(addon.font, 12, "")
+    pName:SetText(name)
+    l:AddChild(pName)
 
-    l:AddChild(l.pName)
-
-    l.data = AceGUI:Create("Label")
-    l.data:SetText(L("In-progress"))
-    l.data:SetFont(addon.font, 12, "")
-    l.data:SetFullWidth(true)
-    l:AddChild(l.data)
+    local cWidth = #"1234567890"
+    for _, c in ipairs({"class", "timePlayed", "xp", "lastSeen"}) do
+        print("c = " .. c)
+        -- print("data[c] = " .. (data[c] or '-'))
+        local d = AceGUI:Create("Label")
+        d:SetFont(addon.font, 12, "")
+        d:SetText(data[c] or '-')
+        -- l[c]:SetWidth(cWidth)
+        l:AddChild(d)
+    end
 
     return l
 end
 
 function addon.comms:ShowGroupingHistory()
-    local f = self.groupingHistory
-    if not f then
-        f = AceGUI:Create("Frame") -- TODO use AceGUI:Create("Window")
-        self.groupingHistory = f
-        f:Hide()
+    local f = AceGUI:Create("Frame")
+    self.groupingHistory = f
+    f:Hide()
 
-        f:SetLayout("Fill")
-        f:EnableResize(true)
-        f.statustext:GetParent():Hide()
-        f:SetTitle("RestedXP: " .. L("Group History")) -- TODO locale
+    f:SetLayout("Flow")
+    f:EnableResize(true)
+    f.statustext:GetParent():Hide()
+    f:SetTitle("RestedXP: " .. L("Group History")) -- TODO locale
 
-        f.scrollContainer = AceGUI:Create("ScrollFrame")
-        f.scrollContainer:SetLayout("Fill")
-        f.scrollContainer:SetFullHeight(true)
-        f:AddChild(f.scrollContainer)
+    local header = AceGUI:Create("SimpleGroup")
+    header:SetLayout("Flow")
+    header:SetFullWidth(true)
 
-        f.frame:SetBackdrop(addon.RXPFrame.backdropEdge)
-        f.frame:SetBackdropColor(unpack(addon.colors.background))
+    for _, l in ipairs({"Name", "Class", "Time", "XP", "Last Seen"}) do
+        local label = AceGUI:Create("Label")
+
+        label:SetFont(addon.font, 12, "")
+        label:SetText(l)
+        label:SetWidth(label.label:GetStringWidth() * 2.5)
+
+        header:AddChild(label)
     end
+    -- f:AddChild(header)
 
-    for _, data in pairs(self.players) do
-        f.scrollContainer:AddChild(buildGroupLine(data))
+    local scrollContainer = AceGUI:Create("ScrollFrame")
+    scrollContainer:SetLayout("Fill")
+    scrollContainer:SetFullHeight(true)
+    f:AddChild(scrollContainer)
+
+    f.frame:SetBackdrop(addon.RXPFrame.backdropEdge)
+    f.frame:SetBackdropColor(unpack(addon.colors.background))
+
+    for name, data in pairs(self.players) do
+        scrollContainer:AddChild(buildGroupLine(name, data))
     end
 
     _G["RESTEDXP_GROUP_HISTORY"] = f.frame
     tinsert(_G.UISpecialFrames, "RESTEDXP_GROUP_HISTORY")
 
-    f:SetCallback("OnClose", function() f:Release() end)
-
+    scrollContainer:DoLayout()
     f:DoLayout()
     f:Show()
 end
