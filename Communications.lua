@@ -4,8 +4,9 @@ local fmt, mrand, smatch, sbyte = string.format, math.random, string.match,
                                   string.byte
 
 local GetNumGroupMembers, SendChatMessage, GetTime, UnitLevel, UnitClass,
-      UnitXP, UnitXPMax, pcall = GetNumGroupMembers, SendChatMessage, GetTime,
-                                 UnitLevel, UnitClass, UnitXP, UnitXPMax, pcall
+      UnitXP, UnitXPMax, pcall, time = GetNumGroupMembers, SendChatMessage,
+                                       GetTime, UnitLevel, UnitClass, UnitXP,
+                                       UnitXPMax, pcall, time
 
 local _G = _G
 
@@ -71,6 +72,10 @@ function addon.comms:UpgradeDB()
     for _, data in pairs(self.players) do
         if data.timePlayed < 0 then
             data.timePlayed = abs(data.timePlayed)
+        end
+
+        if data.lastSeen and data.lastSeen < 1640998800 then -- was GetTime() not time()
+            data.lastSeen = nil
         end
     end
 end
@@ -161,7 +166,8 @@ function addon.comms:TallyGroup(xp)
             self.players[name] = {
                 xp = xp,
                 timePlayed = 0,
-                class = UnitClassBase("party" .. i)
+                class = UnitClassBase("party" .. i),
+                lastSeen = time()
             }
         end
 
@@ -170,6 +176,7 @@ function addon.comms:TallyGroup(xp)
 
             -- Only calculate < 5 minutes between XP gains
             if diff < 300 then
+                self.players[name].lastSeen = time()
                 self.players[name].timePlayed =
                     self.players[name].timePlayed + diff
             end
@@ -269,7 +276,7 @@ function addon.comms:HandleAnnounce(data)
     self.players[data.player.name].level = data.player.level
     self.players[data.player.name].xpPercentage = data.player.xpPercentage
     self.players[data.player.name].isRxp = true
-    self.players[data.player.name].lastSeen = GetTime()
+    self.players[data.player.name].lastSeen = time()
 
     if addon.settings.db.profile.checkVersions then
         if not self.state.updateFound.addon and
@@ -566,7 +573,35 @@ function addon.comms.OpenBrandedExport(title, description, content, width,
     f:Show()
 end
 
-local function buildGroupLine() end
+local function buildGroupLine(data)
+    local l = AceGUI:Create("SimpleGroup")
+    l:SetLayout("List")
+    l:SetFullWidth(true)
+    -- Status, name, class, time, XP, last seen
+
+    --[[
+        ["level"] = 70,
+        ["lastSeen"] = 379666.176,
+        ["xpPercentage"] = 1,
+        ["class"] = "PALADIN",
+        ["timePlayed"] = 0,
+        ["isRxp"] = true,
+    ]]
+
+    l.pName = AceGUI:Create("Label")
+    l.pName:SetText(data)
+    l.pName:SetFullWidth(true)
+
+    l:AddChild(l.pName)
+
+    l.data = AceGUI:Create("Label")
+    l.data:SetText(L("In-progress"))
+    l.data:SetFont(addon.font, 12, "")
+    l.data:SetFullWidth(true)
+    l:AddChild(l.data)
+
+    return l
+end
 
 function addon.comms:ShowGroupingHistory()
     local f = self.groupingHistory
@@ -589,7 +624,9 @@ function addon.comms:ShowGroupingHistory()
         f.frame:SetBackdropColor(unpack(addon.colors.background))
     end
 
-    for _, data in pairs(self.players) do end
+    for _, data in pairs(self.players) do
+        f.scrollContainer:AddChild(buildGroupLine(data))
+    end
 
     _G["RESTEDXP_GROUP_HISTORY"] = f.frame
     tinsert(_G.UISpecialFrames, "RESTEDXP_GROUP_HISTORY")
