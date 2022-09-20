@@ -573,44 +573,80 @@ function addon.comms.OpenBrandedExport(title, description, content, width,
     f:Show()
 end
 
+local function createBorder(self)
+    if not self.borders then
+        self.borders = {}
+        for i = 1, 4 do
+            self.borders[i] = self:CreateLine(nil, "BACKGROUND", nil, 0)
+            local l = self.borders[i]
+            l:SetThickness(1)
+            l:SetColorTexture(unpack(addon.colors.bottomFrameHighlight))
+            if i == 1 then
+                l:SetStartPoint("TOPLEFT")
+                l:SetEndPoint("TOPRIGHT")
+            elseif i == 2 then
+                l:SetStartPoint("TOPRIGHT")
+                l:SetEndPoint("BOTTOMRIGHT")
+            elseif i == 3 then
+                l:SetStartPoint("BOTTOMRIGHT")
+                l:SetEndPoint("BOTTOMLEFT")
+            else
+                l:SetStartPoint("BOTTOMLEFT")
+                l:SetEndPoint("TOPLEFT")
+            end
+        end
+    end
+end
+
 local function buildGroupLine(name, data)
-    print("buildGroupLine: " .. name)
     local l = AceGUI:Create("SimpleGroup")
+    l.columns = {}
+
     l:SetLayout("Flow")
     l:SetFullWidth(true)
-    -- Status, name, class, time, XP, last seen
+
+    l.columns["name"] = AceGUI:Create("Label")
+    l.columns["name"]:SetFont(addon.font, 12, "")
+    l.columns["name"]:SetText(name)
+    l.columns["name"]:SetWidth(60)
+    createBorder(l.columns["name"].frame)
+    l:AddChild(l.columns["name"])
+
+    l.columns["class"] = AceGUI:Create("Label")
+    l.columns["class"]:SetFont(addon.font, 12, "")
+    l.columns["class"]:SetText(data.class or '-')
+    l.columns["class"]:SetWidth(60)
+    createBorder(l.columns["class"].frame)
+    l:AddChild(l.columns["class"])
+
+    l.columns["timePlayed"] = AceGUI:Create("Label")
+    l.columns["timePlayed"]:SetFont(addon.font, 12, "")
+    l.columns["timePlayed"]:SetText(data.timePlayed or '-')
+    l.columns["timePlayed"]:SetWidth(60)
+    createBorder(l.columns["timePlayed"].frame)
+    l:AddChild(l.columns["timePlayed"])
+
+    l.columns["xp"] = AceGUI:Create("Label")
+    l.columns["xp"]:SetFont(addon.font, 12, "")
+    l.columns["xp"]:SetText(data.xp or '-')
+    l.columns["xp"]:SetWidth(60)
+    createBorder(l.columns["xp"].frame)
+    l:AddChild(l.columns["xp"])
 
     --[[
-        ["level"] = 70,
-        ["lastSeen"] = 379666.176,
-        ["xpPercentage"] = 1,
-        ["class"] = "PALADIN",
-        ["timePlayed"] = 0,
-        ["isRxp"] = true,
+    l.columns["lastSeen"] = AceGUI:Create("Label")
+    l.columns["lastSeen"]:SetFont(addon.font, 12, "")
+    l.columns["lastSeen"]:SetText(data.xp or '-')
+    l.columns["lastSeen"]:SetWidth(60)
+    createBorder(l.columns["lastSeen"].frame)
+    l:AddChild(l.columns["lastSeen"])
     ]]
-
-    local pName = AceGUI:Create("Label")
-    pName:SetFont(addon.font, 12, "")
-    pName:SetText(name)
-    l:AddChild(pName)
-
-    local cWidth = #"1234567890"
-    for _, c in ipairs({"class", "timePlayed", "xp", "lastSeen"}) do
-        print("c = " .. c)
-        -- print("data[c] = " .. (data[c] or '-'))
-        local d = AceGUI:Create("Label")
-        d:SetFont(addon.font, 12, "")
-        d:SetText(data[c] or '-')
-        -- l[c]:SetWidth(cWidth)
-        l:AddChild(d)
-    end
 
     return l
 end
 
 function addon.comms:ShowGroupingHistory()
     local f = AceGUI:Create("Frame")
-    self.groupingHistory = f
     f:Hide()
 
     f:SetLayout("Flow")
@@ -621,28 +657,69 @@ function addon.comms:ShowGroupingHistory()
     local header = AceGUI:Create("SimpleGroup")
     header:SetLayout("Flow")
     header:SetFullWidth(true)
+    header.columns = {}
+    local column
 
-    for _, l in ipairs({"Name", "Class", "Time", "XP", "Last Seen"}) do
-        local label = AceGUI:Create("Label")
+    header.columns["name"] = AceGUI:Create("Label")
+    column = header.columns["name"]
+    column:SetFont(addon.font, 12, "")
+    column:SetText("Name")
+    column:SetWidth(60)
+    createBorder(column.frame)
+    header:AddChild(column)
 
-        label:SetFont(addon.font, 12, "")
-        label:SetText(l)
-        label:SetWidth(label.label:GetStringWidth() * 2.5)
+    header.columns["class"] = AceGUI:Create("Label")
+    column = header.columns["class"]
+    column:SetFont(addon.font, 12, "")
+    column:SetText("Class")
+    column:SetWidth(60)
+    createBorder(column.frame)
+    header:AddChild(column)
 
-        header:AddChild(label)
-    end
-    -- f:AddChild(header)
+    header.columns["timePlayed"] = AceGUI:Create("Label")
+    column = header.columns["timePlayed"]
+    column:SetFont(addon.font, 12, "")
+    column:SetText("Time Played")
+    column:SetWidth(60)
+    createBorder(column.frame)
+    header:AddChild(column)
 
-    local scrollContainer = AceGUI:Create("ScrollFrame")
-    scrollContainer:SetLayout("Fill")
+    header.columns["xp"] = AceGUI:Create("Label")
+    column = header.columns["xp"]
+    column:SetFont(addon.font, 12, "")
+    column:SetText("Experience Gained")
+    column:SetWidth(60)
+    createBorder(column.frame)
+    header:AddChild(column)
+
+    --[[
+    header.columns["lastSeen"] = AceGUI:Create("Label")
+    column = header.columns["lastSeen"]
+    column:SetFont(addon.font, 12, "")
+    column:SetText("Last Seen")
+    column:SetWidth(60)
+    createBorder(column.frame)
+    header:AddChild(column)
+    ]]
+
+    f:AddChild(header)
+
+    local scrollContainer = AceGUI:Create("SimpleGroup") -- "InlineGroup" is also good
+    scrollContainer:SetFullWidth(true)
     scrollContainer:SetFullHeight(true)
+    scrollContainer:SetLayout("Fill")
+
     f:AddChild(scrollContainer)
+
+    local scroll = AceGUI:Create("ScrollFrame")
+    scroll:SetLayout("Flow")
+    scrollContainer:AddChild(scroll)
 
     f.frame:SetBackdrop(addon.RXPFrame.backdropEdge)
     f.frame:SetBackdropColor(unpack(addon.colors.background))
 
     for name, data in pairs(self.players) do
-        scrollContainer:AddChild(buildGroupLine(name, data))
+        scroll:AddChild(buildGroupLine(name, data))
     end
 
     _G["RESTEDXP_GROUP_HISTORY"] = f.frame
