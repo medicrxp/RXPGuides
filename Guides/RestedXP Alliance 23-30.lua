@@ -58,7 +58,7 @@ step << wotlk
     .goto StormwindClassic,52.61,65.71
     .home >> Set your Hearthstone to Stormwind City
 step << !Human
-    .goto Stormwind City,66.4,62.1
+    .goto Stormwind City,70.96,72.52
     .fp Stormwind >> Learn the Stormwind Flight Path
 step << Rogue wotlk
 	.goto StormwindClassic,74.6,52.8
