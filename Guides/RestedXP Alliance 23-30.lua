@@ -57,6 +57,10 @@ step << Mage wotlk
 step << wotlk
     .goto StormwindClassic,52.61,65.71
     .home >> Set your Hearthstone to Stormwind City
+step << !Human
+    .goto StormwindClassic,62.5,62.3,30,0
+	.goto StormwindClassic,66.3,62.1
+    .fp StormwindClassic >> Learn the Stormwind flight path
 step << Rogue wotlk
 	.goto StormwindClassic,74.6,52.8
 	.trainer >> Train your class spells
