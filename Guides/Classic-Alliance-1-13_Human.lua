@@ -1094,7 +1094,7 @@ step
 step << Warrior/Paladin/Rogue
     >>Put Sunder Armor on your bars (it's better damage than Heroic Strike) << Warrior
     .goto StormwindClassic,56.3,17.0
-    .vendor >>Buy a Mining Pick. You'll train Mining later
+    .collect 2901,1 >>Buy a Mining Pick. You'll train Mining later
 step
     #sticky
     #completewith next
@@ -2543,7 +2543,7 @@ step
 step << Warrior/Paladin/Rogue
     >>Put Sunder Armor on your bars (it's better damage than Heroic Strike) << Warrior
     .goto StormwindClassic,56.3,17.0
-    .vendor >>Buy a Mining Pick. You'll train Mining later
+    .collect 2901,1 >>Buy a Mining Pick. You'll train Mining later
 step
     #sticky
     #completewith next
