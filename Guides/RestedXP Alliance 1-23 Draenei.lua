@@ -294,9 +294,9 @@ step
     .accept 9512 >> Accept Cookie's Jumbo Gumbo
 step
     .goto Azuremyst Isle,46.4,71.2
-	.vendor >> Vendor and Repair
-    .trainer >> Train Blacksmithing and buy a Mining Pick from Calypso. This will allow you to make +2 damage sharpening stones for your weapon which are very strong. You should stop making these around level 20. << Warrior
-    .trainer >> Train Blacksmithing and buy a Mining Pick from Calypso. This will allow you to make +2 damage weightstones for your weapon which are very strong. You should stop making these around level 20. << Paladin
+	.collect 2901,1 >> Vendor, repair, and buy a mining pick
+    .trainer >> Train Blacksmithing from Calypso. This will allow you to make +2 damage sharpening stones for your weapon which are very strong. You should stop making these around level 20. << Warrior
+    .trainer >> Train Blacksmithing from Calypso. This will allow you to make +2 damage weightstones for your weapon which are very strong. You should stop making these around level 20. << Paladin
 step
     .goto Azuremyst Isle,58.5,66.3
 	>>Grind en route
